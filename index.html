@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Merger - Junte seus PDFs</title>
+    <meta name="description" content="Ferramenta gratuita para mesclar arquivos PDF online, de forma segura e privada no seu navegador">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>
+                <span class="icon">📄</span>
+                PDF Merger
+            </h1>
+            <p class="subtitle">Mescle seus arquivos PDF de forma segura e privada</p>
+        </header>
+
+        <main class="app-main">
+            <!-- File Upload Section -->
+            <section class="upload-section" id="uploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <div class="upload-icon">📁</div>
+                        <h3>Selecione ou arraste seus arquivos PDF</h3>
+                        <p>Clique aqui ou arraste os arquivos para esta área</p>
+                        <button class="upload-button" id="uploadButton">
+                            Selecionar Arquivos
+                        </button>
+                        <input type="file" id="fileInput" accept=".pdf,application/pdf" multiple hidden>
+                    </div>
+                    <div class="upload-overlay" id="uploadOverlay">
+                        <div class="overlay-content">
+                            <div class="overlay-icon">⬇️</div>
+                            <p>Solte os arquivos aqui</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="upload-info">
+                    <p><strong>Informações importantes:</strong></p>
+                    <ul>
+                        <li>Apenas arquivos PDF são aceitos</li>
+                        <li>Tamanho máximo total: 50MB</li>
+                        <li>Todos os arquivos são processados localmente no seu navegador</li>
+                        <li>Nenhum arquivo é enviado para servidores externos</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- File List Section -->
+            <section class="file-list-section" id="fileListSection" style="display: none;">
+                <div class="section-header">
+                    <h3>Arquivos Selecionados</h3>
+                    <p>Arraste para reordenar ou clique no X para remover</p>
+                </div>
+                <div class="file-list" id="fileList">
+                    <!-- Files will be dynamically added here -->
+                </div>
+                <div class="file-actions">
+                    <button class="btn btn-secondary" id="clearAllButton">
+                        Limpar Todos
+                    </button>
+                    <button class="btn btn-primary" id="mergeButton" disabled>
+                        <span class="btn-text">Mesclar PDFs</span>
+                        <span class="btn-icon">🔗</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="progress-section" id="progressSection" style="display: none;">
+                <div class="progress-container">
+                    <h3>Processando seus arquivos...</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span class="progress-text" id="progressText">Iniciando...</span>
+                        <span class="progress-percent" id="progressPercent">0%</span>
+                    </div>
+                    <button class="btn btn-secondary" id="cancelButton">
+                        Cancelar
+                    </button>
+                </div>
+            </section>
+
+            <!-- Result Section -->
+            <section class="result-section" id="resultSection" style="display: none;">
+                <div class="result-container">
+                    <div class="result-success">
+                        <div class="result-icon">✅</div>
+                        <h3>PDF mesclado com sucesso!</h3>
+                        <p>Seu arquivo está pronto para download</p>
+                        <div class="result-actions">
+                            <button class="btn btn-primary" id="downloadButton">
+                                <span class="btn-text">Baixar PDF</span>
+                                <span class="btn-icon">⬇️</span>
+                            </button>
+                            <button class="btn btn-secondary" id="startOverButton">
+                                Mesclar Novos Arquivos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <section class="error-section" id="errorSection" style="display: none;">
+                <div class="error-container">
+                    <div class="error-icon">❌</div>
+                    <h3>Ocorreu um erro</h3>
+                    <p class="error-message" id="errorMessage">
+                        Algo deu errado ao processar seus arquivos.
+                    </p>
+                    <div class="error-actions">
+                        <button class="btn btn-primary" id="retryButton">
+                            Tentar Novamente
+                        </button>
+                        <button class="btn btn-secondary" id="resetButton">
+                            Começar do Zero
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p>
+                    <strong>Privacidade garantida:</strong> 
+                    Todos os arquivos são processados localmente no seu navegador. 
+                    Nenhum dado é enviado para servidores externos.
+                </p>
+                <p class="footer-tech">
+                    Desenvolvido com 
+                    <span class="tech-badge">HTML5</span>
+                    <span class="tech-badge">JavaScript</span>
+                    <span class="tech-badge">PDF-lib</span>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Scripts -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="app.js"></script>
+    <script src="tests.js"></script>
+</body>
+</html>
