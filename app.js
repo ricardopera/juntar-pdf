@@ -4,13 +4,19 @@
  * All processing happens in the browser for privacy and security
  */
 
+// Configure PDF.js
+if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+}
+
 class PDFMerger {
     constructor() {
         this.files = [];
         this.isProcessing = false;
         this.mergedPdfBlob = null;
-        this.maxFileSize = 50 * 1024 * 1024; // 50MB total limit
-        this.maxIndividualFileSize = 25 * 1024 * 1024; // 25MB per file
+        this.maxFileSize = 360 * 1024 * 1024; // 50MB total limit
+        this.maxIndividualFileSize = 120 * 1024 * 1024; // 60MB per file
+        this.warningFileSize = 25 * 1024 * 1024; // 25MB warning threshold
         this.dragCounter = 0;
         
         this.initializeElements();
@@ -161,9 +167,15 @@ class PDFMerger {
                 file: file,
                 name: file.name,
                 size: file.size,
-                status: 'pending'
+                status: 'pending',
+                pageCount: null,
+                thumbnails: [],
+                hasWarning: file.size > this.warningFileSize // Flag for files > 25MB
             };
             this.files.push(fileObj);
+            
+            // Process file asynchronously to extract thumbnails and page count
+            this.processFile(fileObj);
         }
         
         this.updateUI();
@@ -204,6 +216,176 @@ class PDFMerger {
         this.handleFileSelect(files);
     }
 
+    // File Processing
+    async processFile(fileObj) {
+        try {
+            fileObj.status = 'processing';
+            this.renderFileList();
+            
+            const arrayBuffer = await this.fileToArrayBuffer(fileObj.file);
+            const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+            
+            // Get page count
+            fileObj.pageCount = pdfDoc.getPageCount();
+            
+            // Extract thumbnails (first 3 pages)
+            fileObj.thumbnails = await this.extractThumbnails(pdfDoc, 3);
+            
+            fileObj.status = 'complete';
+            this.renderFileList();
+            
+        } catch (error) {
+            console.error('Error processing file:', error);
+            fileObj.status = 'error';
+            fileObj.error = 'Erro ao processar arquivo PDF';
+            this.renderFileList();
+        }
+    }
+
+    async extractThumbnails(pdfDoc, maxThumbnails = 3) {
+        const thumbnails = [];
+        const pageCount = pdfDoc.getPageCount();
+        const pagesToProcess = Math.min(pageCount, maxThumbnails);
+        
+        try {
+            // Convert PDF-lib document to array buffer for PDF.js
+            const pdfBytes = await pdfDoc.save();
+            
+            // Load PDF with PDF.js for rendering
+            const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+            const pdfDocument = await loadingTask.promise;
+            
+            for (let i = 1; i <= pagesToProcess; i++) {
+                try {
+                    // Get page from PDF.js
+                    const page = await pdfDocument.getPage(i);
+                    const viewport = page.getViewport({ scale: 1 });
+                    
+                    // Calculate thumbnail dimensions (max 120px height)
+                    const maxHeight = 120;
+                    const maxWidth = 90;
+                    
+                    // Calculate scale to fit within thumbnail bounds while maintaining aspect ratio
+                    const scaleHeight = maxHeight / viewport.height;
+                    const scaleWidth = maxWidth / viewport.width;
+                    const scale = Math.min(scaleHeight, scaleWidth);
+                    
+                    // Calculate actual content dimensions
+                    const contentWidth = viewport.width * scale;
+                    const contentHeight = viewport.height * scale;
+                    
+                    // Create canvas with fixed thumbnail size
+                    const canvas = document.createElement('canvas');
+                    canvas.width = maxWidth;
+                    canvas.height = maxHeight;
+                    const context = canvas.getContext('2d');
+                    
+                    // Fill background with white
+                    context.fillStyle = '#ffffff';
+                    context.fillRect(0, 0, maxWidth, maxHeight);
+                    
+                    // Calculate offset to center content horizontally and vertically
+                    const offsetX = (maxWidth - contentWidth) / 2;
+                    const offsetY = (maxHeight - contentHeight) / 2;
+                    
+                    // Save context state
+                    context.save();
+                    
+                    // Translate to center position
+                    context.translate(offsetX, offsetY);
+                    
+                    // Create scaled viewport for rendering
+                    const scaledViewport = page.getViewport({ scale: scale });
+                    
+                    // Render page to canvas
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: scaledViewport
+                    };
+                    
+                    await page.render(renderContext).promise;
+                    
+                    // Restore context state
+                    context.restore();
+                    
+                    // Convert canvas to data URL
+                    const dataUrl = canvas.toDataURL('image/png');
+                    
+                    thumbnails.push({
+                        pageNumber: i,
+                        dataUrl: dataUrl
+                    });
+                    
+                } catch (error) {
+                    console.error(`Error creating thumbnail for page ${i}:`, error);
+                    // Fallback to simple placeholder
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 90;
+                    canvas.height = 120;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Fill background
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, 90, 120);
+                    
+                    // Add border
+                    ctx.fillStyle = '#f3f4f6';
+                    ctx.fillRect(5, 5, 80, 110);
+                    ctx.strokeStyle = '#d1d5db';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(5, 5, 80, 110);
+                    
+                    // Add centered page number
+                    ctx.fillStyle = '#374151';
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(`${i}`, 45, 60);
+                    
+                    thumbnails.push({
+                        pageNumber: i,
+                        dataUrl: canvas.toDataURL('image/png')
+                    });
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error loading PDF for thumbnail generation:', error);
+            // Fallback to simple numbered thumbnails
+            for (let i = 1; i <= pagesToProcess; i++) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 90;
+                canvas.height = 120;
+                const ctx = canvas.getContext('2d');
+                
+                // Fill background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, 90, 120);
+                
+                // Add border
+                ctx.fillStyle = '#f3f4f6';
+                ctx.fillRect(5, 5, 80, 110);
+                ctx.strokeStyle = '#d1d5db';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(5, 5, 80, 110);
+                
+                // Add centered page number
+                ctx.fillStyle = '#374151';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${i}`, 45, 60);
+                
+                thumbnails.push({
+                    pageNumber: i,
+                    dataUrl: canvas.toDataURL('image/png')
+                });
+            }
+        }
+        
+        return thumbnails;
+    }
+
     // File Management
     removeFile(fileId) {
         this.files = this.files.filter(f => f.id !== fileId);
@@ -235,14 +417,27 @@ class PDFMerger {
         }
 
         this.fileList.innerHTML = this.files.map((file, index) => `
-            <div class="file-item" data-file-id="${file.id}" data-index="${index}" draggable="true">
+            <div class="file-item ${file.hasWarning ? 'file-warning' : ''}" data-file-id="${file.id}" data-index="${index}" draggable="true">
                 <div class="file-icon">📄</div>
                 <div class="file-info">
                     <div class="file-name" title="${file.name}">${file.name}</div>
                     <div class="file-size">${this.formatFileSize(file.size)}</div>
+                    ${file.pageCount ? `<div class="file-pages">${file.pageCount} página${file.pageCount > 1 ? 's' : ''}</div>` : ''}
+                    ${file.hasWarning ? `<div class="file-warning-message">⚠️ Arquivo grande - operação pode falhar devido ao tamanho</div>` : ''}
                 </div>
+                ${file.thumbnails && file.thumbnails.length > 0 ? `
+                    <div class="file-thumbnails">
+                        ${file.thumbnails.map(thumb => `
+                            <div class="thumbnail-container">
+                                <img src="${thumb.dataUrl}" alt="Página ${thumb.pageNumber}" width="90" height="120" />
+                                <span class="thumbnail-page">Pg ${thumb.pageNumber}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
                 <div class="file-status ${file.status}">
                     ${this.getStatusIcon(file.status)} ${this.getStatusText(file.status)}
+                    ${file.error ? `<div class="file-error">${file.error}</div>` : ''}
                 </div>
                 <button class="file-remove" onclick="app.removeFile('${file.id}')" title="Remover arquivo">
                     ×

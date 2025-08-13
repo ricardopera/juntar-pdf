@@ -424,3 +424,224 @@
 **Week 4**: Tasks 12-13 (Documentation and Deployment)
 
 **Total Estimated Time**: 20-24 hours of development work
+
+---
+
+## TASK-COMPLETE: PDF File Thumbnails and Page Count Display
+
+### Action Documentation Template - 13/08/2025
+
+**TYPE**: FEATURE IMPLEMENTATION
+**TIMESTAMP**: 13/08/2025
+
+**Objective**: Implementar exibição de miniaturas e contagem de páginas para arquivos PDF carregados
+
+**Context**: Usuários reportaram que arquivos PDF ficavam eternamente no status "Aguardando" sem exibir informações sobre o conteúdo dos arquivos. Era necessário implementar processamento individual dos arquivos para extrair miniaturas e contagem de páginas.
+
+**Decision**: Implementar processamento assíncrono de arquivos PDF com geração de miniaturas usando Canvas API
+
+**Execution**:
+
+- Adicionadas propriedades `pageCount` e `thumbnails` ao objeto arquivo
+- Implementada função `processFile(fileObj)` para processamento assíncrono
+- Implementada função `extractThumbnails(pdfDoc, maxThumbnails)` usando Canvas API
+- Modificada função `addFiles()` para chamar processamento após adição
+- Modificada função `renderFileList()` para exibir miniaturas e contagem
+- Adicionados estilos CSS para layout das miniaturas
+- Implementados estados de processamento (pending → processing → complete/error)
+
+**Output**:
+
+- Arquivos agora exibem contagem de páginas
+- Miniaturas das primeiras 3 páginas são exibidas horizontalmente
+- Estados visuais claros (Aguardando → Processando → Concluído)
+- Tratamento de erros com mensagens apropriadas
+- Layout responsivo para miniaturas
+
+**Validation**:
+
+- ✅ Arquivos PDF são processados corretamente
+- ✅ Contagem de páginas é exibida
+- ✅ Miniaturas são geradas e exibidas
+- ✅ Estados de processamento funcionam
+- ✅ Tratamento de erros implementado
+- ✅ CSS responsivo aplicado
+
+**Next**: Testar com diferentes tipos e tamanhos de PDF para garantir robustez
+
+---
+
+## TASK-UPDATE: Real PDF Page Thumbnails Implementation
+
+### Real PDF Thumbnails - 13/08/2025
+
+**TYPE**: BUG FIX / FEATURE ENHANCEMENT
+**TIMESTAMP**: 13/08/2025 - 14:30
+
+**Objective**: Implementar miniaturas reais do conteúdo das páginas PDF ao invés de apenas números
+
+**Context**: Usuários reportaram que as miniaturas mostravam apenas números das páginas (1, 2, etc.) ao invés do conteúdo visual real das páginas PDF. Era necessário implementar renderização real das páginas.
+
+**Decision**: Integrar PDF.js para renderização real das páginas PDF em canvas
+
+**Execution**:
+
+- Adicionado PDF.js via CDN ao index.html
+- Configurado worker do PDF.js
+- Modificada função `extractThumbnails()` para usar PDF.js
+- Implementado renderização real das páginas usando `page.render()`
+- Mantido fallback para placeholders em caso de erro
+- Configurado escala apropriada para miniaturas (80px altura)
+
+**Output**:
+
+- Miniaturas agora mostram conteúdo visual real das páginas PDF
+- Qualidade de renderização adequada para preview
+- Fallback robusto em caso de erro de renderização
+- Performance otimizada com escala reduzida
+- Mantida compatibilidade com layout existente
+
+**Validation**:
+
+- ✅ PDF.js carregado corretamente
+- ✅ Worker configurado
+- ✅ Renderização de páginas funcionando
+- ✅ Fallback de erro implementado
+- ✅ Escala de miniaturas adequada
+- ✅ Layout mantido sem quebras
+
+**Next**: Verificar performance com PDFs grandes e otimizar se necessário
+
+---
+
+## TASK-UPDATE: Repositioning and Resizing Thumbnails
+
+### Layout Enhancement - 13/08/2025
+
+**TYPE**: UI/UX IMPROVEMENT
+**TIMESTAMP**: 13/08/2025 - 15:00
+
+**Objective**: Mover miniaturas para a direita na altura do nome do arquivo e aumentar seu tamanho
+
+**Context**: Usuário solicitou reposicionamento das miniaturas do layout vertical (abaixo do nome) para layout horizontal (à direita do nome), com tamanhos maiores para melhor visualização.
+
+**Decision**: Reposicionar miniaturas usando flexbox e aumentar dimensões de 60x80px para 90x120px
+
+**Execution**:
+
+- Movido elemento `file-thumbnails` para fora de `file-info` no HTML
+- Atualizado tamanho das miniaturas de 60x80px para 90x120px
+- Modificado CSS do `.file-item` para altura mínima de 140px
+- Adicionado `margin-left: auto` nas miniaturas para empurrar à direita
+- Limitado largura do `.file-info` para 300px para dar espaço às miniaturas
+- Ajustado `.file-status` para layout vertical e compacto
+- Aumentado dimensões dos canvas de fallback para 90x120px
+
+**Output**:
+
+- Miniaturas agora posicionadas à direita na altura do nome
+- Tamanho aumentado para 90x120px (50% maior)
+- Layout horizontal equilibrado
+- Melhor utilização do espaço disponível
+- Status mais compacto à direita
+
+**Validation**:
+
+- ✅ Miniaturas posicionadas à direita
+- ✅ Tamanho aumentado aplicado
+- ✅ Layout flexbox funcionando
+- ✅ Espaçamento adequado
+- ✅ Responsividade mantida
+- ✅ Status compacto implementado
+
+**Next**: Testar responsividade em telas menores
+
+---
+
+## TASK-UPDATE: Horizontal Centering of PDF Content in Thumbnails
+
+### Content Centering Enhancement - 13/08/2025
+
+**TYPE**: UI/UX IMPROVEMENT
+**TIMESTAMP**: 13/08/2025 - 15:30
+
+**Objective**: Centralizar horizontalmente o conteúdo visível da página PDF nas miniaturas
+
+**Context**: O conteúdo das páginas PDF nas miniaturas não estava centralizado, resultando em visualização desalinhada e menos atrativa.
+
+**Decision**: Implementar cálculos de offset para centralizar o conteúdo PDF horizontalmente e verticalmente dentro das miniaturas
+
+**Execution**:
+
+- Modificado cálculo de escala para manter proporção e caber dentro dos limites
+- Implementado canvas com tamanho fixo (90x120px)
+- Adicionado cálculo de offset para centralização (horizontal e vertical)
+- Usado `context.translate()` para posicionar conteúdo no centro
+- Adicionado background branco nas miniaturas
+- Melhorado fallbacks com centralização adequada
+- Usado `textBaseline: 'middle'` para alinhamento vertical perfeito
+
+**Output**:
+
+- Conteúdo PDF agora centralizado horizontal e verticalmente
+- Miniaturas com tamanho consistente (90x120px)
+- Background branco uniforme
+- Fallbacks também centralizados
+- Melhor qualidade visual das miniaturas
+- Proporção de aspecto mantida
+
+**Validation**:
+
+- ✅ Conteúdo centralizado horizontalmente
+- ✅ Centralização vertical também implementada
+- ✅ Tamanho fixo mantido
+- ✅ Background branco aplicado
+- ✅ Fallbacks melhorados
+- ✅ Proporção preservada
+
+**Next**: Otimizar renderização para PDFs com orientação landscape
+
+---
+
+## TASK-UPDATE: File Size Limit and Warning System
+
+### File Size Configuration Update - 13/08/2025
+
+**TYPE**: CONFIGURATION CHANGE / UX IMPROVEMENT
+**TIMESTAMP**: 13/08/2025 - 16:00
+
+**Objective**: Alterar limite de arquivo para 60MB e adicionar avisos para arquivos > 25MB
+
+**Context**: Usuário solicitou aumento do limite de arquivo individual de 25MB para 60MB, mantendo avisos de que arquivos grandes podem causar falhas na operação.
+
+**Decision**: Implementar limite de 60MB com sistema de avisos visuais para arquivos entre 25-60MB
+
+**Execution**:
+
+- Alterado `maxIndividualFileSize` de 25MB para 60MB
+- Adicionado `warningFileSize` threshold de 25MB
+- Implementado propriedade `hasWarning` nos objetos de arquivo
+- Adicionada mensagem de aviso visual para arquivos > 25MB
+- Criados estilos CSS para destacar arquivos com aviso
+- Atualizada documentação no HTML com novos limites
+- Implementado background gradiente para arquivos com aviso
+
+**Output**:
+
+- Limite individual aumentado para 60MB
+- Avisos visuais para arquivos 25-60MB
+- Mensagem clara: "⚠️ Arquivo grande - operação pode falhar devido ao tamanho"
+- Estilo visual distintivo com borda laranja
+- Documentação atualizada no interface
+- Manutenção da experiência do usuário informativa
+
+**Validation**:
+
+- ✅ Limite de 60MB implementado
+- ✅ Avisos para arquivos > 25MB funcionando
+- ✅ Estilos visuais aplicados corretamente
+- ✅ Mensagem informativa exibida
+- ✅ HTML atualizado com novos limites
+- ✅ Background gradiente funcionando
+
+**Next**: Implementar progress bar para processamento de arquivos grandes

@@ -331,6 +331,7 @@ body {
     border-radius: var(--radius-md);
     cursor: move;
     transition: all var(--transition-fast);
+    min-height: 140px; /* Increased to accommodate larger thumbnails */
 }
 
 .file-item:hover {
@@ -351,6 +352,7 @@ body {
 .file-info {
     flex: 1;
     min-width: 0;
+    max-width: 300px; /* Limit width to make room for thumbnails */
 }
 
 .file-name {
@@ -369,10 +371,13 @@ body {
 
 .file-status {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--spacing-1);
     font-size: var(--font-size-sm);
     font-weight: 500;
+    min-width: 80px;
+    text-align: center;
 }
 
 .file-status.pending {
@@ -389,6 +394,70 @@ body {
 
 .file-status.error {
     color: var(--error-color);
+}
+
+.file-pages {
+    font-size: var(--font-size-xs);
+    color: var(--primary-color);
+    font-weight: 500;
+    margin-top: var(--spacing-1);
+}
+
+.file-thumbnails {
+    display: flex;
+    gap: var(--spacing-2);
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: auto; /* Push thumbnails to the right */
+    margin-right: var(--spacing-4); /* Space before status */
+}
+
+.thumbnail-container {
+    position: relative;
+    flex-shrink: 0;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.thumbnail-container img {
+    display: block;
+    border: none;
+    background: var(--white);
+    object-fit: cover;
+}
+
+.thumbnail-page {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--white);
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-1);
+    text-align: center;
+    font-weight: 500;
+}
+
+.file-error {
+    margin-top: var(--spacing-1);
+    font-size: var(--font-size-xs);
+    color: var(--error-color);
+}
+
+.file-warning-message {
+    margin-top: var(--spacing-1);
+    font-size: var(--font-size-xs);
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
+.file-item.file-warning {
+    border-left: 3px solid var(--warning-color);
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, var(--gray-50) 10%);
 }
 
 .file-remove {
