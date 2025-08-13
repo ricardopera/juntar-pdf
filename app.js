@@ -14,8 +14,8 @@ class PDFMerger {
         this.files = [];
         this.isProcessing = false;
         this.mergedPdfBlob = null;
-        this.maxFileSize = 360 * 1024 * 1024; // 50MB total limit
-        this.maxIndividualFileSize = 120 * 1024 * 1024; // 60MB per file
+        this.maxFileSize = 360 * 1024 * 1024; // 360MB total limit
+        this.maxIndividualFileSize = 120 * 1024 * 1024; // 120MB per file
         this.warningFileSize = 25 * 1024 * 1024; // 25MB warning threshold
         this.dragCounter = 0;
         
