@@ -9,7 +9,7 @@
 // Google Analytics Configuration
 window.ANALYTICS_CONFIG = {
     // Replace with your Google Analytics Measurement ID (e.g., 'G-XXXXXXXXXX')
-    measurementId: 'GA_MEASUREMENT_ID',
+    measurementId: $GA_MEASUREMENT_ID,
     
     // Enable/disable analytics tracking
     enabled: true,
