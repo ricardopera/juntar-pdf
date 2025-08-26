@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Merger - Junte seus PDFs</title>
     <meta name="description" content="Ferramenta gratuita para mesclar arquivos PDF online, de forma segura e privada no seu navegador">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Replace GA_MEASUREMENT_ID with your actual Google Analytics Measurement ID
+        gtag('config', 'GA_MEASUREMENT_ID', {
+            page_title: 'PDF Merger - Junte seus PDFs',
+            custom_map: {
+                dimension1: 'pdf_merger_app'
+            }
+        });
+    </script>
+    
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
 </head>
@@ -146,6 +163,7 @@
     </div>
 
     <!-- Loading Scripts -->
+    <script src="analytics.config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="app.js"></script>

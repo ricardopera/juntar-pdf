@@ -9,6 +9,68 @@ if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 }
 
+// Google Analytics Utility Class
+class AnalyticsManager {
+    constructor() {
+        this.config = window.ANALYTICS_CONFIG || {};
+        this.isGtagAvailable = typeof gtag !== 'undefined';
+        this.isEnabled = this.config.enabled && this.config.measurementId !== 'GA_MEASUREMENT_ID';
+    }
+
+    // Track custom events
+    trackEvent(action, category = 'PDF Merger', label = '', value = null) {
+        if (!this.isGtagAvailable || !this.isEnabled) return;
+        
+        const eventData = {
+            event_category: category,
+            event_label: label
+        };
+        
+        if (value !== null) {
+            eventData.value = value;
+        }
+        
+        gtag('event', action, eventData);
+        console.log('Analytics Event:', action, eventData); // For debugging
+    }
+
+    // Track file upload events
+    trackFileUpload(fileCount, totalSize) {
+        const category = this.config.eventCategories?.userInteraction || 'User Interaction';
+        this.trackEvent('file_upload', category, `${fileCount} files`, Math.round(totalSize / 1024 / 1024));
+    }
+
+    // Track merge operation
+    trackMergeStart(fileCount, totalSize) {
+        const category = this.config.eventCategories?.pdfProcessing || 'PDF Processing';
+        this.trackEvent('merge_start', category, `${fileCount} files`, Math.round(totalSize / 1024 / 1024));
+    }
+
+    // Track merge completion
+    trackMergeComplete(fileCount, processingTime) {
+        const category = this.config.eventCategories?.pdfProcessing || 'PDF Processing';
+        this.trackEvent('merge_complete', category, `${fileCount} files`, Math.round(processingTime / 1000));
+    }
+
+    // Track download
+    trackDownload(fileName, fileSize) {
+        const category = this.config.eventCategories?.userInteraction || 'User Interaction';
+        this.trackEvent('download', category, fileName, Math.round(fileSize / 1024 / 1024));
+    }
+
+    // Track errors
+    trackError(errorType, errorMessage) {
+        const category = this.config.eventCategories?.applicationError || 'Application Error';
+        this.trackEvent('error', category, `${errorType}: ${errorMessage}`);
+    }
+
+    // Track user flow milestones
+    trackMilestone(milestone) {
+        const category = this.config.eventCategories?.userFlow || 'User Flow';
+        this.trackEvent('milestone', category, milestone);
+    }
+}
+
 class PDFMerger {
     constructor() {
         this.files = [];
@@ -18,10 +80,17 @@ class PDFMerger {
         this.maxIndividualFileSize = 120 * 1024 * 1024; // 120MB per file
         this.warningFileSize = 25 * 1024 * 1024; // 25MB warning threshold
         this.dragCounter = 0;
+        this.startTime = null; // For tracking processing time
+        
+        // Initialize analytics
+        this.analytics = new AnalyticsManager();
         
         this.initializeElements();
         this.bindEvents();
         this.updateUI();
+        
+        // Track app initialization
+        this.analytics.trackMilestone('app_initialized');
     }
 
     initializeElements() {
@@ -177,6 +246,11 @@ class PDFMerger {
             // Process file asynchronously to extract thumbnails and page count
             this.processFile(fileObj);
         }
+        
+        // Track file upload analytics
+        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+        this.analytics.trackFileUpload(files.length, totalSize);
+        this.analytics.trackMilestone('files_uploaded');
         
         this.updateUI();
         this.renderFileList();
@@ -488,6 +562,13 @@ class PDFMerger {
         if (this.files.length === 0 || this.isProcessing) return;
 
         this.isProcessing = true;
+        this.startTime = Date.now(); // Track processing start time
+        
+        // Track merge analytics
+        const totalSize = this.files.reduce((sum, file) => sum + file.file.size, 0);
+        this.analytics.trackMergeStart(this.files.length, totalSize);
+        this.analytics.trackMilestone('merge_started');
+        
         this.showProgress();
         this.updateProgress(0, 'Iniciando processamento...');
 
@@ -532,6 +613,11 @@ class PDFMerger {
 
             this.updateProgress(100, 'Concluído!');
             
+            // Track successful merge completion
+            const processingTime = Date.now() - this.startTime;
+            this.analytics.trackMergeComplete(this.files.length, processingTime);
+            this.analytics.trackMilestone('merge_completed');
+            
             setTimeout(() => {
                 this.showResult();
                 this.isProcessing = false;
@@ -540,6 +626,10 @@ class PDFMerger {
         } catch (error) {
             console.error('Merge error:', error);
             this.isProcessing = false;
+            
+            // Track merge error
+            this.analytics.trackError('merge_error', error.message);
+            
             this.showError(`Erro ao mesclar PDFs: ${error.message}`);
         }
     }
@@ -570,14 +660,19 @@ class PDFMerger {
     downloadMergedPDF() {
         if (!this.mergedPdfBlob) return;
 
+        const fileName = this.generateMergedFilename();
         const url = URL.createObjectURL(this.mergedPdfBlob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = this.generateMergedFilename();
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+
+        // Track download analytics
+        this.analytics.trackDownload(fileName, this.mergedPdfBlob.size);
+        this.analytics.trackMilestone('download_completed');
 
         // Clean up
         setTimeout(() => {
@@ -617,6 +712,9 @@ class PDFMerger {
         this.hideAllSections();
         this.errorSection.style.display = 'block';
         this.errorMessage.textContent = message;
+        
+        // Track error display
+        this.analytics.trackError('user_error', message);
     }
 
     hideAllSections() {

@@ -116,14 +116,46 @@ php -S localhost:8000
 
 Acesse: `http://localhost:8000`
 
+## 📊 Google Analytics (Opcional)
+
+O projeto inclui suporte integrado para Google Analytics para monitoramento de uso e performance.
+
+### Configuração Rápida
+
+1. **Obter Measurement ID**:
+   - Acesse [Google Analytics](https://analytics.google.com/)
+   - Copie seu Measurement ID (formato: `G-XXXXXXXXXX`)
+
+2. **Configurar**:
+   - Abra `analytics.config.js`
+   - Substitua `'GA_MEASUREMENT_ID'` pelo seu ID real
+   - Salve o arquivo
+
+3. **Deploy**:
+   - Analytics começa a funcionar automaticamente
+
+### O que é Monitorado
+- **Interações**: Upload, merge, download de arquivos
+- **Performance**: Tempo de processamento, tamanho dos arquivos
+- **Erros**: Falhas de processamento e validação
+- **Fluxo do usuário**: Marcos de conclusão
+
+### Privacidade
+- ✅ Não rastreia conteúdo dos arquivos
+- ✅ Não rastreia dados pessoais
+- ✅ Pode ser desabilitado completamente
+- ✅ Respeita a abordagem privacy-first da aplicação
+
+Para mais detalhes, consulte [ANALYTICS_SETUP.md](ANALYTICS_SETUP.md).
+
 ## 🔒 Privacidade e Segurança
 
 ### Garantias de Privacidade
 - ✅ Nenhum arquivo é enviado para servidores
 - ✅ Todo processamento ocorre no navegador
 - ✅ Dados são limpos automaticamente da memória
-- ✅ Sem cookies ou tracking
-- ✅ Sem analytics de dados pessoais
+- ✅ Analytics opcional (pode ser desabilitado)
+- ✅ Sem rastreamento de dados pessoais ou conteúdo de arquivos
 
 ### Medidas de Segurança
 - ✅ Validação rigorosa de tipos de arquivo
