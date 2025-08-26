@@ -31,14 +31,10 @@ window.ANALYTICS_CONFIG = {
 };
 
 // Initialize Google Analytics with the configuration
-if (window.ANALYTICS_CONFIG.enabled && window.ANALYTICS_CONFIG.measurementId !== 'GA_MEASUREMENT_ID') {
-    // Update the HTML script tags dynamically
-    const scripts = document.querySelectorAll('script[src*="googletagmanager"]');
-    scripts.forEach(script => {
-        script.src = script.src.replace('GA_MEASUREMENT_ID', window.ANALYTICS_CONFIG.measurementId);
-    });
-    
-    // Update gtag config
+if (window.ANALYTICS_CONFIG.enabled && 
+    window.ANALYTICS_CONFIG.measurementId && 
+    window.ANALYTICS_CONFIG.measurementId.startsWith('G-')) {
+    // Update gtag config if gtag is available
     if (typeof gtag !== 'undefined') {
         gtag('config', window.ANALYTICS_CONFIG.measurementId, {
             page_title: 'PDF Merger - Junte seus PDFs',

@@ -27,6 +27,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v4
+      - name: Replace GA_MEASUREMENT_ID with secret
+        env:
+          GA_MEASUREMENT_ID: ${{ secrets.GA_MEASUREMENT_ID }}
+        run: |
+          # Replace GA_MEASUREMENT_ID in analytics.config.js
+          if [ -n "$GA_MEASUREMENT_ID" ]; then
+            sed -i "s/GA_MEASUREMENT_ID/$GA_MEASUREMENT_ID/g" analytics.config.js
+            sed -i "s/GA_MEASUREMENT_ID/$GA_MEASUREMENT_ID/g" index.html
+            echo "✅ Replaced GA_MEASUREMENT_ID with secret value"
+          else
+            echo "⚠️ GA_MEASUREMENT_ID secret not set, keeping placeholder"
+          fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

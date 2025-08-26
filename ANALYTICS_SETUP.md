@@ -2,6 +2,25 @@
 
 ## Quick Setup
 
+### Option 1: Automated Setup with GitHub Secret (Recommended)
+
+1. **Get Your Google Analytics Measurement ID**
+   - Go to [Google Analytics](https://analytics.google.com/)
+   - Create or select your property
+   - Copy your Measurement ID (format: `G-XXXXXXXXXX`)
+
+2. **Set Repository Secret**
+   - Go to your GitHub repository Settings > Secrets and variables > Actions
+   - Add a new repository secret named `GA_MEASUREMENT_ID`
+   - Set the value to your Google Analytics Measurement ID (e.g., `G-XXXXXXXXXX`)
+
+3. **Deploy**
+   - Push your changes to the main branch
+   - GitHub Actions will automatically replace the placeholder with your secret value
+   - Analytics will start tracking immediately after deployment
+
+### Option 2: Manual Setup
+
 1. **Get Your Google Analytics Measurement ID**
    - Go to [Google Analytics](https://analytics.google.com/)
    - Create or select your property
@@ -10,7 +29,9 @@
 2. **Configure Analytics**
    - Open `analytics.config.js`
    - Replace `'GA_MEASUREMENT_ID'` with your actual Measurement ID
-   - Save the file
+   - Open `index.html`
+   - Replace both occurrences of `GA_MEASUREMENT_ID` with your actual Measurement ID
+   - Save both files
 
 3. **Deploy**
    - Upload all files to your hosting service
