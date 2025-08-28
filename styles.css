@@ -645,6 +645,68 @@ body {
     font-weight: 500;
 }
 
+/* Footer Social Links */
+.footer-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-6);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--gray-200);
+}
+
+.social-link {
+    display: inline-block;
+    text-decoration: none;
+    transition: transform var(--transition-fast);
+}
+
+.social-link:hover {
+    transform: translateY(-2px);
+}
+
+.social-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--white);
+    border: 2px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.social-circle:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.github-repo {
+    background: var(--gray-800);
+    color: var(--white);
+    border-color: var(--gray-800);
+}
+
+.github-repo:hover {
+    background: var(--gray-700);
+    border-color: var(--gray-700);
+}
+
+.github-icon {
+    width: 24px;
+    height: 24px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .app-container {
@@ -694,6 +756,20 @@ body {
     .footer-tech {
         flex-direction: column;
         gap: var(--spacing-1);
+    }
+    
+    .footer-social {
+        gap: var(--spacing-3);
+    }
+    
+    .social-circle {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .github-icon {
+        width: 20px;
+        height: 20px;
     }
 }
 
