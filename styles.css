@@ -645,15 +645,41 @@ body {
     font-weight: 500;
 }
 
+/* Developer Credit */
+.developer-credit {
+    margin-top: var(--spacing-6);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--gray-200);
+    text-align: center;
+}
+
+.developer-credit p {
+    color: var(--gray-700);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-4);
+}
+
 /* Footer Social Links */
 .footer-social {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-4);
-    margin-top: var(--spacing-6);
-    padding-top: var(--spacing-4);
-    border-top: 1px solid var(--gray-200);
+    gap: var(--spacing-6);
+    margin-top: var(--spacing-4);
+}
+
+.social-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.social-label {
+    font-size: var(--font-size-xs);
+    color: var(--gray-600);
+    font-weight: 500;
+    text-align: center;
 }
 
 .social-link {
@@ -705,6 +731,22 @@ body {
 .github-icon {
     width: 24px;
     height: 24px;
+}
+
+.x-icon {
+    background: var(--gray-900);
+    color: var(--white);
+    border-color: var(--gray-900);
+}
+
+.x-icon:hover {
+    background: var(--gray-800);
+    border-color: var(--gray-800);
+}
+
+.x-icon-svg {
+    width: 20px;
+    height: 20px;
 }
 
 /* Responsive Design */
@@ -759,7 +801,7 @@ body {
     }
     
     .footer-social {
-        gap: var(--spacing-3);
+        gap: var(--spacing-4);
     }
     
     .social-circle {
@@ -767,9 +809,15 @@ body {
         height: 44px;
     }
     
-    .github-icon {
+    .github-icon,
+    .x-icon-svg {
         width: 20px;
         height: 20px;
+    }
+    
+    .x-icon-svg {
+        width: 18px;
+        height: 18px;
     }
 }
 
